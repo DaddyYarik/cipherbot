@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import html
+import io
 import logging
 import os
 from uuid import uuid4
@@ -65,7 +66,7 @@ HELP = """<b>🛰 CipherBot</b> — твой карманный кибер-ту�
 /md5 · /sha1 · /sha256
 
 <b>Генераторы</b>
-/pass [длина] · /uuid
+/pass [длина] · /uuid · /qr &lt;текст или ссылка&gt;
 
 <b>Авто-детект</b>
 /detect &lt;строка&gt; — или просто пришли непонятный текст, я попробую раскодировать.
@@ -145,6 +146,24 @@ async def pass_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def uuid_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.effective_message.reply_html(_fmt("🆔 UUID", tk.gen_uuid()))
+
+
+async def qr_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    text = _input_text(update, context)
+    if not text:
+        await update.effective_message.reply_text(
+            "Использование: /qr <текст или ссылка>  (или ответь командой на сообщение)"
+        )
+        return
+    try:
+        png = tk.qr_png(text)
+    except Exception as e:  # noqa: BLE001  (e.g. data too long for a QR code)
+        await update.effective_message.reply_text(f"⚠️ не вышло сделать QR: {e}")
+        return
+    photo = io.BytesIO(png)
+    photo.name = "qr.png"
+    caption = text if len(text) <= 120 else text[:117] + "…"
+    await update.effective_message.reply_photo(photo=photo, caption=f"🔳 {html.escape(caption)}")
 
 
 async def detect_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -241,6 +260,7 @@ def main() -> None:
     app.add_handler(CommandHandler("unvig", make_vig(True, "🔐 Vigenère → text")))
     app.add_handler(CommandHandler("pass", pass_cmd))
     app.add_handler(CommandHandler("uuid", uuid_cmd))
+    app.add_handler(CommandHandler("qr", qr_cmd))
     app.add_handler(CommandHandler("detect", detect_cmd))
     app.add_handler(InlineQueryHandler(inline_query))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))

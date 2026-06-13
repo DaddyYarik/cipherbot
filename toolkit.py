@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import io
 import re
 import secrets
 import string
 import urllib.parse
 import uuid
+
+import segno
 
 # ─────────────────────────── ciphers ───────────────────────────
 
@@ -163,6 +166,16 @@ def gen_password(length: int = 16) -> str:
 
 def gen_uuid() -> str:
     return str(uuid.uuid4())
+
+
+# ─────────────────────────── QR codes ───────────────────────────
+
+
+def qr_png(data: str, scale: int = 8) -> bytes:
+    """Render `data` as a PNG QR code and return the raw bytes."""
+    buf = io.BytesIO()
+    segno.make(data, error="m").save(buf, kind="png", scale=scale, border=2)
+    return buf.getvalue()
 
 
 # ─────────────────────────── auto-detect ───────────────────────────
