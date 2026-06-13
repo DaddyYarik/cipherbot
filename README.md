@@ -12,6 +12,7 @@ Built for geeks and CTF players. Throw it a weird string and it tries to crack i
 - **Hashes** — MD5, SHA-1, SHA-256
 - **Auto-detect** — send any mystery string; the bot guesses Base64 / Hex / Binary / Morse and decodes it
 - **Generators** — strong passwords, UUIDs, **QR codes** (sent as an image)
+- **QR reader** — send a photo or image file of a QR code and the bot decodes it
 - **Inline mode** — in *any* chat: `@your_bot rot13 hello` → result inline
 - **Reply support** — reply to a message with a bare command (e.g. `/b64`) to transform its text
 

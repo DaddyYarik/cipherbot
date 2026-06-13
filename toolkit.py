@@ -178,6 +178,26 @@ def qr_png(data: str, scale: int = 8) -> bytes:
     return buf.getvalue()
 
 
+def decode_qr(image_bytes: bytes) -> str | None:
+    """Decode a QR code from an image's raw bytes. Returns None if none found."""
+    import cv2  # lazy import — heavy
+    import numpy as np
+
+    arr = np.frombuffer(image_bytes, dtype=np.uint8)
+    img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+    if img is None:
+        return None
+    detector = cv2.QRCodeDetector()
+    text, _, _ = detector.detectAndDecode(img)
+    if text:
+        return text
+    ok, decoded, _, _ = detector.detectAndDecodeMulti(img)
+    if ok and decoded:
+        joined = "\n".join(d for d in decoded if d)
+        return joined or None
+    return None
+
+
 # ─────────────────────────── auto-detect ───────────────────────────
 
 
