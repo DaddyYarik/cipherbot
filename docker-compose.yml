@@ -1,0 +1,8 @@
+services:
+  cipherbot:
+    build: .
+    image: cipherbot:latest
+    container_name: cipherbot
+    restart: unless-stopped
+    # Reads TELEGRAM_BOT_TOKEN from a local .env file (never committed).
+    env_file: .env
